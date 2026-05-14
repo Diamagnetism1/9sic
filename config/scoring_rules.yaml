@@ -1,0 +1,175 @@
+# ============================================================
+# scoring_rules.yaml — Job Intel Scoring Configuration
+# All scores are additive. Final score = sum of all matched rules.
+# Penalties are negative. Total can be negative (hard no).
+# ============================================================
+
+# ─── Domain / Industry ──────────────────────────────────────
+domain_rules:
+  # Tier 1: exact target domains (high value)
+  - keywords: [semiconductor, 반도체, fab, wafer, cleanroom, clean room, 클린룸]
+    score: 30
+    label: "반도체/클린룸 도메인"
+
+  - keywords: [data center, datacenter, 데이터센터, hyperscale, server farm]
+    score: 28
+    label: "데이터센터 도메인"
+
+  - keywords: [high-tech facility, 하이테크, hi-tech, advanced manufacturing]
+    score: 25
+    label: "하이테크 시설"
+
+  - keywords: [production facility, 생산시설, 공장, manufacturing plant, factory]
+    score: 20
+    label: "생산/제조 시설"
+
+  # Tier 2: adjacent domains (moderate value)
+  - keywords: [mission critical, life science, pharma, pharmaceutical, 바이오]
+    score: 15
+    label: "미션크리티컬/바이오"
+
+  - keywords: [airport, logistics hub, industrial complex, 산업단지]
+    score: 10
+    label: "대형 인프라"
+
+  # Tier 3: general (baseline)
+  - keywords: [construction, building, 건설, infrastructure, 인프라]
+    score: 5
+    label: "일반 건설/인프라"
+
+
+# ─── Role Level / Function ──────────────────────────────────
+role_rules:
+  # High-value role signals
+  - keywords: [BIM governance, BIM manager, BIM management]
+    score: 35
+    label: "BIM Governance/Management"
+
+  - keywords: [VDC, virtual design, virtual construction]
+    score: 30
+    label: "VDC"
+
+  - keywords: [design coordination, design coordinator, 설계 조율, 설계조율]
+    score: 28
+    label: "Design Coordination"
+
+  - keywords: [digital delivery, digital twin, 디지털 딜리버리]
+    score: 25
+    label: "Digital Delivery"
+
+  - keywords: [BIM QC, BIM quality, data quality, 데이터 품질, quality control BIM]
+    score: 25
+    label: "BIM QC / Data Quality"
+
+  - keywords: [handover, data handover, 준공, as-built, 핸드오버]
+    score: 22
+    label: "Handover Data"
+
+  - keywords: [pre-construction, preconstruction, pre-con, constructability, 설계단계]
+    score: 20
+    label: "Pre-construction / Constructability"
+
+  - keywords: [project information management, PIM, CDE, common data environment]
+    score: 20
+    label: "Project Information Management"
+
+  - keywords: [MEP BIM, MEP coordination, MEP modeling lead, MEP coordinator]
+    score: 18
+    label: "MEP BIM"
+
+  - keywords: [BIM lead, BIM coordinator, lead BIM, senior BIM]
+    score: 15
+    label: "BIM Lead/Coordinator"
+
+  # Mid-value signals
+  - keywords: [BIM specialist, BIM engineer, BIM consultant]
+    score: 10
+    label: "BIM Specialist/Engineer"
+
+  - keywords: [Revit, Navisworks, Autodesk, 오토데스크]
+    score: 5
+    label: "BIM Tools 언급"
+
+
+# ─── Ownership / Seniority signals ──────────────────────────
+ownership_rules:
+  - keywords: [owner, client side, 발주처, 발주자, owner-side, client-side]
+    score: 20
+    label: "Owner-side 포지션"
+
+  - keywords: [lead, manager, head, principal, director, 책임, 팀장, 리드]
+    score: 15
+    label: "리더십/책임 역할"
+
+  - keywords: [ownership, accountable, responsible for, 담당, 전담]
+    score: 10
+    label: "Role Ownership 신호"
+
+  - keywords: [strategy, strategic, roadmap, governance, policy]
+    score: 8
+    label: "전략적 역할"
+
+
+# ─── Employment Type ────────────────────────────────────────
+employment_type_rules:
+  - keywords: [정규직, full-time, fulltime, permanent, 상용직]
+    score: 10
+    label: "정규직"
+
+  - keywords: [계약직, contract, 기간제, fixed-term]
+    score: 0
+    label: "계약직 (중립)"
+
+  - keywords: [파견, 도급, dispatch, staffing agency, 용역]
+    score: -15
+    label: "파견/도급 감점"
+
+
+# ─── Company Tier bonus ─────────────────────────────────────
+company_rules:
+  - companies: [삼성전자, Samsung Electronics, Samsung, SK hynix, SK하이닉스]
+    score: 20
+    label: "Tier 1 반도체 대기업"
+
+  - companies: [기아, Kia, LG, LG전자, LG CNS, POSCO, 포스코, Hyundai, 현대]
+    score: 10
+    label: "Tier 1 대기업"
+
+  - companies: [AECOM, Jacobs, WSP, Turner, Bechtel, Mott MacDonald, Arup]
+    score: 8
+    label: "글로벌 EPC/컨설팅"
+
+  - companies: [삼성물산, GS건설, 현대건설, DL이앤씨, 대우건설, SK에코플랜트]
+    score: 5
+    label: "국내 대형 건설사"
+
+
+# ─── Penalties (red flags) ──────────────────────────────────
+penalty_rules:
+  - keywords: [단순 모델링, simple modeling, 모델 작성, 도면 작성, CAD drafting, autocad only]
+    score: -20
+    label: "단순 CAD/모델링 역할 감점"
+
+  - keywords: [markup, 레드라인, redline, 마크업, 코멘트 반영]
+    score: -15
+    label: "Markup 반영 위주 감점"
+
+  - keywords: [operator only, support only, 단순 운영, 단순 지원, 보조 업무]
+    score: -15
+    label: "운영/지원 전용 감점"
+
+  - keywords: [인턴, intern, 아르바이트, part-time, 시간제]
+    score: -25
+    label: "인턴/단기 감점"
+
+  - keywords: [경력 무관, 경력 1년 미만, 신입 위주]
+    score: -10
+    label: "저경력 우선 감점"
+
+
+# ─── Score thresholds (for UI display) ──────────────────────
+thresholds:
+  hot:    70   # 💎 강력 추천
+  good:   45   # ✅ 검토 권장
+  maybe:  20   # 🔍 참고
+  skip:   0    # ⬇️ 낮은 적합도

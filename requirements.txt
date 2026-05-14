@@ -1,0 +1,16 @@
+# Core
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+PyYAML>=6.0.1
+
+# Dashboard
+streamlit>=1.35.0
+pandas>=2.1.0
+
+# Optional: LLM analysis
+anthropic>=0.28.0
+
+# Optional: Playwright adapters (Samsung, SK Hynix, Kia, LG)
+# Uncomment if running Playwright adapters locally or in CI
+# playwright>=1.44.0

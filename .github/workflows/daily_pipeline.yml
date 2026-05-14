@@ -1,0 +1,65 @@
+name: Daily Job Intel Pipeline
+
+on:
+  schedule:
+    # 매일 오전 7시 (KST = UTC+9, 즉 UTC 22:00 전날)
+    - cron: "0 1 * * *"   # 오전 10시 KST
+    - cron: "0 8 * * *"   # 오후 5시 KST
+  workflow_dispatch:   # 수동 실행 버튼
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Playwright adapters (Samsung, SK Hynix, Kia, LG)
+      # 필요한 경우에만 설치. 무거우므로 requests-only 먼저 실행
+      # - name: Install Playwright browsers
+      #   run: playwright install chromium --with-deps
+
+      - name: Restore database
+        uses: actions/cache@v4
+        with:
+          path: data/job_intel.db
+          key: job-intel-db-${{ github.run_number }}
+          restore-keys: |
+            job-intel-db-
+
+      - name: Run pipeline (requests-only adapters)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JOB_INTEL_DB: data/job_intel.db
+          LLM_SCORE_THRESHOLD: "45"
+        run: |
+          python scripts/run_pipeline.py --sites saramin jobkorea
+
+      - name: Save database artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-intel-db-${{ github.run_id }}
+          path: data/job_intel.db
+          retention-days: 30
+
+      - name: Commit updated DB back to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/job_intel.db
+          git diff --staged --quiet || git commit -m "chore: daily pipeline run $(date -u +%Y-%m-%d)"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
