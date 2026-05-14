@@ -2,15 +2,14 @@ name: Daily Job Intel Pipeline
 
 on:
   schedule:
-    # 매일 오전 7시 (KST = UTC+9, 즉 UTC 22:00 전날)
-    - cron: "0 1 * * *"   # 오전 10시 KST
-    - cron: "0 8 * * *"   # 오후 5시 KST
-  workflow_dispatch:   # 수동 실행 버튼
+    - cron: "0 1 * * *"   # 오전 10시 KST (UTC 01:00)
+    - cron: "0 8 * * *"   # 오후 5시 KST (UTC 08:00)
+  workflow_dispatch:       # 수동 실행 버튼
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repo
@@ -25,11 +24,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install playwright
 
-      # Playwright adapters (Samsung, SK Hynix, Kia, LG)
-      # 필요한 경우에만 설치. 무거우므로 requests-only 먼저 실행
-      # - name: Install Playwright browsers
-      #   run: playwright install chromium --with-deps
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
 
       - name: Restore database
         uses: actions/cache@v4
@@ -39,13 +37,13 @@ jobs:
           restore-keys: |
             job-intel-db-
 
-      - name: Run pipeline (requests-only adapters)
+      - name: Run pipeline (all adapters)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           JOB_INTEL_DB: data/job_intel.db
           LLM_SCORE_THRESHOLD: "45"
         run: |
-          python scripts/run_pipeline.py --sites saramin jobkorea
+          python scripts/run_pipeline.py --no-llm
 
       - name: Save database artifact
         uses: actions/upload-artifact@v4
