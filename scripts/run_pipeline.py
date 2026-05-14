@@ -33,26 +33,32 @@ def get_enabled_adapters() -> dict:
     """Return {site_name: AdapterClass} for all enabled sites."""
     from src.adapters.saramin import SaraminAdapter
     from src.adapters.jobkorea import JobKoreaAdapter
-    try:
-        from src.adapters.samsung import SamsungAdapter
-        samsung = SamsungAdapter
-    except ImportError:
-        samsung = None
 
+    # requests 기반 (항상 활성)
     adapters = {
         "saramin":  SaraminAdapter,
         "jobkorea": JobKoreaAdapter,
     }
-    if samsung:
-        adapters["samsung_careers"] = samsung
 
-    # Add Playwright adapters only if playwright is installed
+    # Playwright 기반 — playwright 설치된 경우에만 활성
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import sync_playwright  # noqa: F401
         from src.adapters.samsung import SamsungAdapter
+        from src.adapters.skhynix import SKHynixAdapter
+        from src.adapters.kia import KiaAdapter
+        from src.adapters.lg import LGAdapter
         adapters["samsung_careers"] = SamsungAdapter
+        adapters["skhynix_careers"] = SKHynixAdapter
+        adapters["kia_careers"]     = KiaAdapter
+        adapters["lg_careers"]      = LGAdapter
+        from src.adapters.remember import RememberAdapter
+        adapters["remember"]        = RememberAdapter
+        from src.adapters.samsung_cnt import SamsungCNTAdapter
+        adapters["samsung_cnt"]    = SamsungCNTAdapter
+        print("[pipeline] Playwright adapters loaded: samsung, samsung_cnt, skhynix, kia, lg, remember")
     except ImportError:
-        pass
+        print("[pipeline] Playwright not installed — skipping corporate site adapters")
+        print("           설치: pip install playwright && playwright install chromium")
 
     return adapters
 
