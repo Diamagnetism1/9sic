@@ -67,7 +67,11 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
+          
+          # 원격 최신 상태 먼저 가져오기
+          git fetch origin main
+          git rebase origin/main
+          
           git add -f data/job_intel.db
 
           if git diff --staged --quiet; then
@@ -76,7 +80,6 @@ jobs:
           fi
 
           git commit -m "chore: daily pipeline run $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
           git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
